@@ -31,7 +31,16 @@ public class HeroService {
     }
 
     public Hero findById(Long id) {
-        return em.find(Hero.class, id);
+        Hero hero = em.find(Hero.class, id);
+        if(hero == null) {
+            throw new ApiException(404, "Герой не найден");
+        }
+        return hero;
+    }
+
+    public HeroResponse getById(Long id) {
+        Hero hero = findById(id);
+        return new HeroResponse(hero);
     }
 
     public HeroResponse create(String name, int level, int health) {
@@ -39,6 +48,12 @@ public class HeroService {
                 || level < 1 || health < 0) {
             throw new ApiException(400, "Некорректные характеристики героя");
         }
+
+        name = name.strip();
+        if (name.length() > 100) {
+            throw new ApiException(400, "Длина имени больше 100 символов");
+        }
+
         Hero hero = new Hero();
         hero.setName(name);
         hero.setLevel(level);
@@ -51,17 +66,49 @@ public class HeroService {
     }
 
     public void changeGuild(Long heroId, Long guildId) {
-        Hero hero = em.find(Hero.class, heroId);
-        if (hero == null) {
-            throw new ApiException(404, "Герой не найден");
-        }
-
+        Hero hero = findById(heroId);
         Guild guild = em.find(Guild.class, guildId);
         if (guild == null) {
             throw new ApiException(404, "Гильдия не найдена");
         }
 
         hero.setGuild(guild);
+    }
+
+    public void leaveGuild(Long heroId) {
+        Hero hero = findById(heroId);
+        hero.setGuild(null);
+    }
+
+    public void delete(Long heroId) {
+        Hero hero = findById(heroId);
+        em.remove(hero);
+    }
+
+    public HeroResponse update(
+            Long heroId,
+            String name,
+            Integer level,
+            Integer health
+    ) {
+        if (name == null || name.isBlank()
+                || level == null || level < 1
+                || health == null || health < 0) {
+            throw new ApiException(400, "Некорректные характеристики героя");
+        }
+
+        name = name.strip();
+
+        if (name.length() > 100) {
+            throw new ApiException(400, "Название слишком длинное");
+        }
+
+        Hero hero = findById(heroId);
+        hero.setName(name);
+        hero.setLevel(level);
+        hero.setHealth(health);
+
+        return new HeroResponse(hero);
     }
 
 

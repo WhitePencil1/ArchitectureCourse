@@ -1,22 +1,16 @@
 package com.whitepencil.guild.resource;
 
-
 import com.whitepencil.guild.dto.HeroResponse;
+import com.whitepencil.guild.dto.HeroUpdateRequest;
+import com.whitepencil.guild.exception.ApiException;
 import com.whitepencil.guild.model.Hero;
 import com.whitepencil.guild.service.HeroService;
-import jakarta.annotation.Resource;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/heroes")
@@ -36,19 +30,14 @@ public class HeroResource {
     @GET
     @Path("/{id}")
     public Response getById(@PathParam("id") Long id) {
-        Hero hero = service.findById(id);
-
-        if (hero == null) {
-           return Response.status(404).build();
-        }
-
+        HeroResponse hero = service.getById(id);
         return Response.ok(hero).build();
     }
 
     @POST
-    public Response createHero(Hero request) throws SQLException {
+    public Response createHero(Hero request) {
         if (request == null) {
-            return Response.status(400).build();
+            throw new ApiException(400, "Отсутствует тело запроса");
         }
 
         try {
@@ -77,5 +66,37 @@ public class HeroResource {
         return Response.noContent().build();
     }
 
+    @DELETE
+    @Path("/{heroId}/guild")
+    public Response leaveGuild(
+            @PathParam("heroId") Long heroId
+    ) {
+        service.leaveGuild(heroId);
+        return Response.noContent().build();
+    }
 
+    @DELETE
+    @Path("/{heroId}")
+    public Response deleteHero(
+            @PathParam("heroId") Long heroId
+    ) {
+        service.delete(heroId);
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/{heroId}")
+    public Response heroUpdate(@PathParam("heroId") Long heroId, HeroUpdateRequest request) {
+        if (request == null) {
+            throw new ApiException(400, "Тело запроса обязательно");
+        }
+        HeroResponse hero = service.update(
+                heroId,
+                request.name,
+                request.level,
+                request.health
+        );
+
+        return Response.ok(hero).build();
+    }
 }
