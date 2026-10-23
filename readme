@@ -1,0 +1,22 @@
+Команды для работы с сервером:
+
+Сборка проекта в war файл:
+mvn clean package
+
+Деплой приложения на сервер
+asadmin deploy target/fantasy-guild.war
+
+Редеплой после изменений
+asadmin redeploy target/fantasy-guild.war
+
+Cоздание пула соединений
+asadmin create-jdbc-connection-pool \
+  --datasourceclassname org.postgresql.ds.PGSimpleDataSource \
+  --restype javax.sql.DataSource \
+  --property 'user=USER:password=PASSWORD:databaseName=NAME:serverName=localhost:portNumber=5432' \
+  GuildPool
+
+ Создание JDBC Resource
+ asadmin create-jdbc-resource \
+   --connectionpoolid GuildPool \
+   jdbc/GuildDB
