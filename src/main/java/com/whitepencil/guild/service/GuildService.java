@@ -112,5 +112,4 @@ public class GuildService {
         Guild guild = findById(guildId);
         em.remove(guild);
     }
-
 }

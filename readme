@@ -1,3 +1,17 @@
+Запуск приложения:
+
+1. Убедиться, что PostgreSQL запущен и база доступна через jdbc/GuildDB.
+2. Если GlassFish остановлен, запустить его:
+   asadmin start-domain domain1
+3. Из корня проекта собрать WAR:
+   mvn clean package
+4. Обновить уже развёрнутое приложение:
+   asadmin redeploy target/fantasy-guild.war
+   При первом развёртывании использовать deploy вместо redeploy.
+5. Открыть в браузере:
+   http://localhost:8080/fantasy-guild/
+
+
 Команды для работы с сервером:
 
 Сборка проекта в war файл:
@@ -16,7 +30,12 @@ asadmin create-jdbc-connection-pool \
   --property 'user=USER:password=PASSWORD:databaseName=NAME:serverName=localhost:portNumber=5432' \
   GuildPool
 
- Создание JDBC Resource
- asadmin create-jdbc-resource \
-   --connectionpoolid GuildPool \
-   jdbc/GuildDB
+Создание JDBC Resource
+asadmin create-jdbc-resource \
+--connectionpoolid GuildPool \
+jdbc/GuildDB
+
+Выключить серв
+asadmin stop-domain domain1
+
+
